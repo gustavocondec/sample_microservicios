@@ -1,0 +1,110 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "MS Estudiantes",
+    "version": "1.0.0",
+    "description": "CRUD de estudiantes"
+  },
+  "paths": {
+    "/ms-estudiantes/estudiantes": {
+      "get": {
+        "summary": "Listar estudiantes",
+        "responses": {
+          "200": {
+            "description": "Listado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Estudiante" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear estudiante",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "$ref": "#/components/schemas/EstudiantePayload" }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Creado",
+            "content": {
+              "application/json": { "$ref": "#/components/schemas/Estudiante" }
+            }
+          }
+        }
+      }
+    },
+    "/ms-estudiantes/estudiantes/{id}": {
+      "get": {
+        "summary": "Obtener estudiante",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "$ref": "#/components/schemas/Estudiante" } } },
+          "404": { "description": "No encontrado" }
+        }
+      },
+      "put": {
+        "summary": "Actualizar estudiante",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "$ref": "#/components/schemas/EstudiantePayload" } }
+        },
+        "responses": {
+          "200": { "description": "Actualizado", "content": { "application/json": { "$ref": "#/components/schemas/Estudiante" } } }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar estudiante",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "204": { "description": "Eliminado" } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Estudiante": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "dni": { "type": "string" },
+          "email": { "type": "string" },
+          "telefono": { "type": "string", "nullable": true },
+          "fecha_nacimiento": { "type": "string", "format": "date" },
+          "direccion": { "type": "string", "nullable": true },
+          "fecha_registro": { "type": "string", "format": "date-time" },
+          "activo": { "type": "boolean" }
+        }
+      },
+      "EstudiantePayload": {
+        "type": "object",
+        "required": ["nombre", "apellido", "dni", "email", "fecha_nacimiento"],
+        "properties": {
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "dni": { "type": "string" },
+          "email": { "type": "string" },
+          "telefono": { "type": "string" },
+          "fecha_nacimiento": { "type": "string", "format": "date" },
+          "direccion": { "type": "string" },
+          "activo": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  }
+}

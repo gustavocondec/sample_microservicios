@@ -1,0 +1,97 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-universidad
+    environment:
+      POSTGRES_DB: universidad_db
+      POSTGRES_USER: univ_user
+      POSTGRES_PASSWORD: univ_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U univ_user -d universidad_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-auth:
+    build:
+      context: ./ms-auth
+      dockerfile: Dockerfile
+    container_name: ms-auth
+    environment:
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: universidad_db
+      DB_USER: univ_user
+      DB_PASSWORD: univ_pass
+      DATABASE_URL: postgres://univ_user:univ_pass@postgres:5432/universidad_db
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ms-estudiantes:
+    build:
+      context: ./ms-estudiantes
+      dockerfile: Dockerfile
+    container_name: ms-estudiantes
+    environment:
+      PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: universidad_db
+      DB_USER: univ_user
+      DB_PASSWORD: univ_pass
+      DATABASE_URL: postgres://univ_user:univ_pass@postgres:5432/universidad_db
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ms-facultad:
+    build:
+      context: ./ms-facultad
+      dockerfile: Dockerfile
+    container_name: ms-facultad
+    environment:
+      PORT: 3003
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: universidad_db
+      DB_USER: univ_user
+      DB_PASSWORD: univ_pass
+      DATABASE_URL: postgres://univ_user:univ_pass@postgres:5432/universidad_db
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ms-matricula:
+    build:
+      context: ./ms-matricula
+      dockerfile: Dockerfile
+    container_name: ms-matricula
+    environment:
+      PORT: 3004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: universidad_db
+      DB_USER: univ_user
+      DB_PASSWORD: univ_pass
+      DATABASE_URL: postgres://univ_user:univ_pass@postgres:5432/universidad_db
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  db_data:
