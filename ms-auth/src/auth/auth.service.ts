@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { Estudiante } from './entities/estudiante.entity';
+import { KafkaProducerService } from './kafka-producer.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Estudiante)
     private readonly estudianteRepo: Repository<Estudiante>,
+    private readonly kafkaProducer: KafkaProducerService,
   ) {}
 
   async login(dto: LoginDto) {
@@ -19,6 +21,13 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
     const token = Buffer.from(`${estudiante.email}:${estudiante.estudianteId}`).toString('base64');
+    // Emitir evento de login a Kafka (mejor esfuerzo, no bloqueante ante fallo).
+    await this.kafkaProducer.emitLogin({
+      email: estudiante.email,
+      estudianteId: estudiante.estudianteId,
+      loggedAt: new Date().toISOString(),
+    });
+
     return {
       token,
       estudiante: {

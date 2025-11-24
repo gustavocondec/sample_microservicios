@@ -30,11 +30,15 @@ services:
       DB_USER: univ_user
       DB_PASSWORD: univ_pass
       DATABASE_URL: postgres://univ_user:univ_pass@postgres:5432/universidad_db
+      KAFKA_BROKER: kafka:9092
+      KAFKA_TOPIC_AUTH_LOGIN: auth-login
     ports:
       - "3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_started
 
   ms-estudiantes:
     build:
@@ -92,6 +96,57 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_started
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.3
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.3
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server kafka:9092 --list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-notifications:
+    build:
+      context: ./ms-notifications
+      dockerfile: Dockerfile
+    container_name: ms-notifications
+    environment:
+      PORT: 3005
+      KAFKA_BROKER: kafka:9092
+      KAFKA_CONSUMER_GROUP: ms-notifications
+      KAFKA_TOPIC_AUTH_LOGIN: auth-login
+      RESEND_API_KEY: ${RESEND_API_KEY:-re_RrEN4cPA_QsfUpz9nuDQQBcB5VUqfhBzj}
+      RESEND_FROM: "no-reply@resend.dev"
+    ports:
+      - "3005:3005"
+    depends_on:
+      kafka:
+        condition: service_started
 
 volumes:
   db_data:

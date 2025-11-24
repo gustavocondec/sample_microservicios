@@ -28,7 +28,34 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "$ref": "#/components/schemas/EstudiantePayload" }
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EstudiantePayload" },
+              "example": {
+                "nombre": "Carlos",
+                "apellido": "Ramírez",
+                "dni": "45678912",
+                "email": "carlos.ramirez@example.com",
+                "telefono": "+51 900000010",
+                "fecha_nacimiento": "1998-07-15",
+                "direccion": "Av. Principal 456",
+                "activo": true
+              },
+              "examples": {
+                "ejemploValido": {
+                  "summary": "Payload de ejemplo",
+                  "value": {
+                    "nombre": "Carlos",
+                    "apellido": "Ramírez",
+                    "dni": "45678912",
+                    "email": "carlos.ramirez@example.com",
+                    "telefono": "+51 900000010",
+                    "fecha_nacimiento": "1998-07-15",
+                    "direccion": "Av. Principal 456",
+                    "activo": true
+                  }
+                }
+              }
+            }
           }
         },
         "responses": {
@@ -103,6 +130,16 @@
           "fecha_nacimiento": { "type": "string", "format": "date" },
           "direccion": { "type": "string" },
           "activo": { "type": "boolean", "default": true }
+        },
+        "example": {
+          "nombre": "Carlos",
+          "apellido": "Ramírez",
+          "dni": "45678912",
+          "email": "carlos.ramirez@example.com",
+          "telefono": "+51 900000010",
+          "fecha_nacimiento": "1998-07-15",
+          "direccion": "Av. Principal 456",
+          "activo": true
         }
       }
     }
