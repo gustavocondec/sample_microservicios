@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/matriculas")
+@SecurityRequirement(name = "bearerAuth")
 public class MatriculaController {
   private final MatriculaService service;
 
@@ -41,7 +43,9 @@ public class MatriculaController {
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
       summary = "Crear matrícula",
-      description = "Crea una matrícula nueva. El estado válido: PENDIENTE, PAGADO, ANULADO o COMPLETADO."
+      description = "Crea una matrícula nueva. Protegido: enviar Authorization: Bearer <token emitido por ms-auth>. "
+          + "Estado válido: PENDIENTE, PAGADO, ANULADO o COMPLETADO.",
+      security = { @SecurityRequirement(name = "bearerAuth") }
   )
   public Matricula create(
       @io.swagger.v3.oas.annotations.parameters.RequestBody(
