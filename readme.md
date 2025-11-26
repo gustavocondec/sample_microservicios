@@ -23,7 +23,7 @@ Compose ya inyecta valores por defecto; solo necesitas modificarlos si vas a apu
 - Kafka (ms-auth productor y ms-notifications consumidor):  
   `KAFKA_BROKER=kafka:9092`, `KAFKA_TOPIC_AUTH_LOGIN=auth-login`, `KAFKA_CONSUMER_GROUP=ms-notifications`
 - Correo (ms-notifications):  
-  `RESEND_API_KEY` (obligatorio en prod; en Compose hay un valor de prueba), `RESEND_FROM=no-reply@resend.dev`
+  `RESEND_API_KEY` (obligatorio; defínelo en tu entorno o `.env` antes de levantar), `RESEND_FROM=no-reply@resend.dev`
 - Puertos de app (cada servicio): `PORT=3001|3002|3003|3004|3005`
 
 Archivos `.env.example` en `ms-auth/`, `ms-estudiantes/`, `ms-facultad/` y `ms-matricula/` sirven para correrlos fuera de Docker (`cp .env.example .env` y ajusta).
@@ -38,7 +38,7 @@ Ubicacion: `docker/initdb/`
 ## Como levantar con Docker Compose
 
 1) Requisitos: Docker y Docker Compose (v2+).  
-2) (Opcional) Ajusta variables en `docker-compose.yml` o agrega un `.env` para `RESEND_API_KEY` real.  
+2) (Requerido) Define `RESEND_API_KEY` en tu entorno o archivo `.env` antes de levantar. Ajusta otras variables en `docker-compose.yml` si necesitas personalizar.  
 3) Build y arranque:
 ```bash
 docker-compose up -d --build
@@ -90,7 +90,7 @@ docker-compose down -v
    `curl -X POST http://localhost:3001/ms-auth/login -H "Content-Type: application/json" -d '{"email":"ana.perez@example.com","dni":"12345678"}'`
 2) Usar el token devuelto en el `Authorization` Bearer para crear una matricula en ms-matricula:  
    `curl -X POST http://localhost:3004/ms-matricula/matriculas -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"estudianteId":1,"seccionId":2,"estado":"PAGADO","costo":1200,"metodoPago":"TARJETA"}'`
-3) Verificar que ms-notifications reciba el evento de login y (si configuraste `RESEND_API_KEY` real) envie el correo. Revisa `docker logs -f ms-notifications`.
+3) Verificar que ms-notifications reciba el evento de login y (si configuraste `RESEND_API_KEY`) envie el correo. Revisa `docker logs -f ms-notifications`.
 
 ## Desarrollo local sin Docker (opcional)
 
@@ -106,4 +106,4 @@ docker-compose down -v
 
 - El volumen `db_data` conserva datos entre reinicios. Usa `docker-compose down -v` para reiniciar la BD desde cero y volver a cargar seeds.  
 - Kafka crea automaticamente el topico `auth-login` (habilitado `auto.create.topics.enable=true`).  
-- ms-notifications trae un `RESEND_API_KEY` de prueba en `docker-compose.yml`; cambia a tu clave real antes de usarlo en serio.
+- Define `RESEND_API_KEY` en tu entorno (ya no hay valor por defecto en `docker-compose.yml`). Si falta, Compose fallará al levantar `ms-notifications`.

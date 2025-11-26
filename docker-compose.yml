@@ -140,7 +140,7 @@ services:
       KAFKA_BROKER: kafka:9092
       KAFKA_CONSUMER_GROUP: ms-notifications
       KAFKA_TOPIC_AUTH_LOGIN: auth-login
-      RESEND_API_KEY: ${RESEND_API_KEY:-re_RrEN4cPA_QsfUpz9nuDQQBcB5VUqfhBzj}
+      RESEND_API_KEY: ${RESEND_API_KEY:?set RESEND_API_KEY in your environment}
       RESEND_FROM: "no-reply@resend.dev"
     ports:
       - "3005:3005"
